@@ -294,9 +294,9 @@ object hof{
       */
     def reverse(): List[T] = {
       @tailrec
-      def go(lst: List[T], res: List[T]): List[T] = lst match {
-        case head :: tail => go(tail, head :: res)
-        case List.Nil => res
+      def go(lst: List[T], acc: List[T]): List[T] = lst match {
+        case head :: tail => go(tail, head :: acc)
+        case List.Nil => acc
       }
       go(this, List.Nil)
     }
@@ -306,11 +306,11 @@ object hof{
       */
      def map[B](f: T => B): List[B] = {
        @tailrec
-       def go(list: List[T], acc: List[B])(f: T => B): List[B] = list match {
+       def go(list: List[T], acc: List[B]): List[B] = list match {
          case List.Nil => acc
-         case head :: tail => go(tail, f(head) :: acc)(f)
+         case head :: tail => go(tail, f(head) :: acc)
        }
-       go(this, List())(f).reverse()
+       go(this, List.Nil).reverse()
      }
 
      /**
@@ -318,11 +318,12 @@ object hof{
       * Реализовать метод filter для списка который будет фильтровать список по некому условию
       */
       def filter(f: T => Boolean): List[T] = {
-        def go(list: List[T])(f: T => Boolean): List[T] = list match {
-          case head :: tail => if (f(head)) head :: go(tail)(f) else go(tail)(f)
-          case List.Nil => List.Nil
+        @tailrec
+        def go(list: List[T], acc: List[T]): List[T] = list match {
+          case head :: tail => if (f(head)) go(tail, head :: acc) else go(tail, acc)
+          case List.Nil => acc
         }
-        go(this)(f)
+        go(this, List.Nil).reverse()
       }
    }
 
