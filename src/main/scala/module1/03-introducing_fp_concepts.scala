@@ -271,10 +271,7 @@ object hof{
       * Метод cons, добавляет элемент в голову списка, для этого метода можно воспользоваться названием `::`
       *
       */
-     def ::[A >: T](elt: A): List[A] = this match {
-       case List.Nil => List.::(elt, List.Nil)
-       case x: List[A] => List.::(elt, x)
-     }
+     def ::[A >: T](elt: A): List[A] = List.::(elt, this)
 
      /**
       * Метод mkString возвращает строковое представление списка, с учетом переданного разделителя
@@ -307,12 +304,13 @@ object hof{
       *
       * Реализовать метод map для списка который будет применять некую ф-цию к элементам данного списка
       */
-     def map[U, TT >: T](f: TT => U): List[U] = {
-       def go(list: List[TT])(f: TT => U): List[U] = list match {
-         case List.Nil => List.Nil
-         case head :: tail => f(head) :: go(tail)(f)
+     def map[B](f: T => B): List[B] = {
+       @tailrec
+       def go(list: List[T], acc: List[B])(f: T => B): List[B] = list match {
+         case List.Nil => acc
+         case head :: tail => go(tail, f(head) :: acc)(f)
        }
-       go(this)(f)
+       go(this, List())(f).reverse()
      }
 
      /**
@@ -352,12 +350,12 @@ object hof{
     * Написать функцию incList котрая будет принимать список Int и возвращать список,
     * где каждый элемент будет увеличен на 1
     */
-   def incList(lst: List[Int]): List[Int] = lst.map[Int, Int](_ + 1)
+   def incList(lst: List[Int]): List[Int] = lst.map(_ + 1)
 
    /**
     *
     * Написать функцию shoutString котрая будет принимать список String и возвращать список,
     * где к каждому элементу будет добавлен префикс в виде '!'
     */
-   def shoutString(lst: List[String]): List[String] = lst.map[String, String]("!" + _)
+   def shoutString(lst: List[String]): List[String] = lst.map("!" + _)
  }
